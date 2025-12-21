@@ -137,7 +137,7 @@
 
   function getSiteID() {
     const hostname = window.location.hostname;
-    return hostname.replace('.', '_') + '_speed_rate';
+    return hostname.replaceAll('.', '_') + '_speed_rate';
   }
 
   function createOverlay(el) {
