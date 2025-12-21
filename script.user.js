@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         Video Speed Controller
 // @namespace    https://dongdev.com/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Adjust and remember video speed using keyboard shortcuts
 // @author       github@dongcodebmt
 // @match        *://*/*
 // @exclude      *://*.twitch.tv/*
+// @exclude      *://*.tiktok.com/*
 // @run-at       document-start
 // @icon         https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/docs/icon.png
 // @license      MIT
@@ -13,6 +14,8 @@
 // @updateURL    https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/script.meta.js
 // @downloadURL  https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/script.user.js
 // @grant        GM_addStyle
+// @grant        GM_getValue
+// @grant        GM_setValue
 // ==/UserScript==
 
 (function () {
@@ -56,7 +59,6 @@
       increase: 'd',
       reset: 'r'
     },
-    storageKey: 'dd_video_speed',
     currentSpeed: null
   };
   let videoEl = null;
@@ -113,12 +115,12 @@
 
   function setRate(rate) {
     config.currentSpeed = rate;
-    localStorage.setItem(config.storageKey, rate.toString());
+    GM_setValue(getSiteID(), rate);
   }
 
   function getRate() {
     if (config.currentSpeed) return config.currentSpeed;
-    const saved = parseFloat(localStorage.getItem(config.storageKey));
+    const saved = parseFloat(GM_getValue(getSiteID()));
     return isNaN(saved) ? 1.0 : saved;
   }
 
@@ -131,6 +133,11 @@
     overlay._timeout = setTimeout(() => {
       overlay.classList.remove('dd_video_speed_overlay_active');
     }, 2000);
+  }
+
+  function getSiteID() {
+    const hostname = window.location.hostname;
+    return hostname.replace('.', '_') + '_speed_rate';
   }
 
   function createOverlay(el) {
