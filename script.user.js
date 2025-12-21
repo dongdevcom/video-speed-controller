@@ -58,8 +58,7 @@
       decrease: 's',
       increase: 'd',
       reset: 'r'
-    },
-    currentSpeed: null
+    }
   };
   let videoEl = null;
 
@@ -69,7 +68,7 @@
 
   function handlePlaying() {
     const el = videoEl;
-    const rate = getRate();
+    const rate = GM_getValue(getSiteID(), 1.0);
     setPlaybackRate(el, rate);
   }
 
@@ -104,24 +103,13 @@
     if (!el) return;
     if (el.playbackRate === rate) return;
     el.playbackRate = rate;
-    setRate(rate);
+    GM_setValue(getSiteID(), rate);
     updateOverlay(el, rate);
   }
 
   function getPlaybackRate(el, delta) {
     if (!el) 1.0;
     return Math.max(0.1, Math.min(el.playbackRate + delta, 16));
-  }
-
-  function setRate(rate) {
-    config.currentSpeed = rate;
-    GM_setValue(getSiteID(), rate);
-  }
-
-  function getRate() {
-    if (config.currentSpeed) return config.currentSpeed;
-    const saved = parseFloat(GM_getValue(getSiteID()));
-    return isNaN(saved) ? 1.0 : saved;
   }
 
   function updateOverlay(el, rate) {
@@ -133,11 +121,6 @@
     overlay._timeout = setTimeout(() => {
       overlay.classList.remove('dd_video_speed_overlay_active');
     }, 2000);
-  }
-
-  function getSiteID() {
-    const hostname = window.location.hostname;
-    return hostname.replaceAll('.', '_') + '_speed_rate';
   }
 
   function createOverlay(el) {
@@ -157,5 +140,10 @@
 
     el._overlay = overlay;
     return overlay;
+  }
+
+  function getSiteID() {
+    const hostname = window.location.hostname;
+    return hostname.replaceAll('.', '_') + '_speed_rate';
   }
 })();
