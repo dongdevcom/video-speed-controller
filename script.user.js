@@ -1,18 +1,17 @@
 // ==UserScript==
 // @name         Video Speed Controller
-// @namespace    https://dongdev.com/
+// @namespace    https://github.com/dongdevcom/video-speed-controller/
 // @version      1.0.2
 // @description  Adjust and remember video speed using keyboard shortcuts
-// @author       github@dongcodebmt
+// @author       github@dongdevcom
 // @match        *://*/*
 // @exclude      *://*.twitch.tv/*
-// @exclude      *://*.tiktok.com/*
 // @run-at       document-start
-// @icon         https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/docs/icon.png
+// @icon         https://raw.githubusercontent.com/dongdevcom/video-speed-controller/main/docs/icon.png
 // @license      MIT
-// @supportURL   https://github.com/dongcodebmt/video-speed-controller/issues
-// @updateURL    https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/script.meta.js
-// @downloadURL  https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/script.user.js
+// @supportURL   https://github.com/dongdevcom/video-speed-controller/issues
+// @updateURL    https://raw.githubusercontent.com/dongdevcom/video-speed-controller/main/script.meta.js
+// @downloadURL  https://raw.githubusercontent.com/dongdevcom/video-speed-controller/main/script.user.js
 // @grant        GM_addStyle
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -44,12 +43,6 @@
       .dd_video_speed_overlay_active {
         opacity: 1;
       }
-
-      .dd_video_speed_wrapper {
-        position: relative;
-        height: 100%;
-        width: auto;
-      }
   `);
 
   const config = {
@@ -62,33 +55,61 @@
   };
   let videoEl = null;
 
-  document.addEventListener('playing', handlePlaying, { capture: true });
-  document.addEventListener('play', handlePlay, true);
-  document.addEventListener('keydown', handleKeydown);
+  const getSiteId = () => {
+    const hostname = window.location.hostname;
+    return hostname.replaceAll('.', '_') + '_speed_rate';
+  };
 
-  function handlePlaying() {
-    const el = videoEl;
-    const rate = GM_getValue(getSiteID(), 1.0);
-    setPlaybackRate(el, rate);
-  }
+  const isQueryAll = () => {
+    return /(^|\.)tiktok\.com$/.test(location.hostname);
+  };
 
-  function handlePlay(e) {
+  const getVideos = () => {
+    if (isQueryAll()) {
+      return document.querySelectorAll('video');
+    }
+    return [videoEl];
+  };
+
+  const applyPlaybackRate = (rate) => {
+    getVideos().forEach(el => {
+      if (el && typeof el.playbackRate === 'number' && el.playbackRate !== rate) {
+        el.playbackRate = rate;
+        updateOverlay(el, el.playbackRate);
+      }
+    });
+  };
+
+  const getCurrentRate = (el) => {
+    if (Array.isArray(el)) {
+      el = el[0];
+    }
+    return el && typeof el.playbackRate === 'number' ? el.playbackRate : GM_getValue(getSiteId(), 1.0);
+  };
+
+  const handlePlaying = () => {
+    const rate = GM_getValue(getSiteId(), 1.0);
+    applyPlaybackRate(rate);
+  };
+
+  const handlePlay = (e) => {
     videoEl = e.target;
-  }
+  };
 
-  function handleKeydown(e) {
+  const handleKeydown = (e) => {
     const tag = e.target.tagName.toLowerCase();
     if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
     const key = e.key.toLowerCase();
-    const el = videoEl;
-    let rate = 1.0;
+    const currentRate = getCurrentRate(getVideos());
+    let rate = currentRate;
 
     switch (key) {
       case config.key.decrease:
-        rate = getPlaybackRate(el, -1 * config.delta);
+        rate = Math.max(0.1, Math.min(currentRate - config.delta, 16));
         break;
       case config.key.increase:
-        rate = getPlaybackRate(el, config.delta);
+        rate = Math.max(0.1, Math.min(currentRate + config.delta, 16));
         break;
       case config.key.reset:
         rate = 1.0;
@@ -96,23 +117,16 @@
       default:
         return;
     }
-    setPlaybackRate(el, rate);
-  }
+    GM_setValue(getSiteId(), rate);
+    applyPlaybackRate(rate);
+  };
 
-  function setPlaybackRate(el, rate) {
-    if (!el) return;
-    if (el.playbackRate === rate) return;
-    el.playbackRate = rate;
-    GM_setValue(getSiteID(), rate);
-    updateOverlay(el, rate);
-  }
+  const observer = new MutationObserver(() => {
+    const rate = GM_getValue(getSiteId(), 1.0);
+    applyPlaybackRate(rate);
+  });
 
-  function getPlaybackRate(el, delta) {
-    if (!el) 1.0;
-    return Math.max(0.1, Math.min(el.playbackRate + delta, 16));
-  }
-
-  function updateOverlay(el, rate) {
+  const updateOverlay = (el, rate) => {
     const overlay = createOverlay(el);
     overlay.textContent = `🚀 ${rate.toFixed(1)}x`;
     overlay.classList.add('dd_video_speed_overlay_active');
@@ -123,14 +137,13 @@
     }, 2000);
   }
 
-  function createOverlay(el) {
+  const createOverlay = (el) => {
     if (el._overlay) return el._overlay;
 
     const overlay = document.createElement('div');
     overlay.classList.add('dd_video_speed_overlay');
 
     const wrapper = document.createElement('div');
-    wrapper.classList.add('dd_video_speed_wrapper');
 
     const parent = el.parentElement;
     if (!parent) return overlay;
@@ -142,8 +155,11 @@
     return overlay;
   }
 
-  function getSiteID() {
-    const hostname = window.location.hostname;
-    return hostname.replaceAll('.', '_') + '_speed_rate';
-  }
+  document.addEventListener('playing', handlePlaying, { capture: true });
+  document.addEventListener('play', handlePlay, true);
+  document.addEventListener('keydown', handleKeydown);
+  observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('beforeunload', () => {
+      observer.disconnect();
+  });
 })();
