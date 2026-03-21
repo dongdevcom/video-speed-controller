@@ -60,14 +60,7 @@
     return hostname.replaceAll('.', '_') + '_speed_rate';
   };
 
-  const isQueryAll = () => {
-    return /(^|\.)tiktok\.com$/.test(location.hostname);
-  };
-
   const getVideos = () => {
-    if (isQueryAll()) {
-      return document.querySelectorAll('video');
-    }
     return [videoEl];
   };
 
