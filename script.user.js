@@ -122,8 +122,10 @@
   };
 
   const observer = new MutationObserver(() => {
-    const rate = GM_getValue(getSiteId(), 1.0);
-    applyPlaybackRate(rate);
+    if (getVideos().length > 0) {
+      const rate = GM_getValue(getSiteId(), 1.0);
+      applyPlaybackRate(rate);
+    }
   });
 
   const updateOverlay = (el, rate) => {
