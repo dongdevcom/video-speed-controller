@@ -8,8 +8,11 @@ A lightweight script that lets you **adjust HTML5 video playback speed** on any 
 
 - ⏩ Increase/decrease video speed with `D` / `S` keys
 - 🔁 Reset speed to default (1.0x) with the `R` key
-- 💾 **Automatically saves** the current playback speed to `localStorage`
+- 💾 **Automatically saves** the current playback speed for each individual website
 - 📺 **Displays current speed** as an overlay on top of each video
+- 🛠️ **Customizable settings**: Change speed step, keyboard shortcuts, and language via configuration menu
+- 🔄 **Reset configuration**: Restore all settings to default
+- 🌍 **Multi-language support**: English and Vietnamese
 - 🌐 Works on **any website** using `<video>` — YouTube, Facebook, etc.
 
 ## ⌨️ Keyboard Shortcuts
@@ -24,13 +27,19 @@ A lightweight script that lets you **adjust HTML5 video playback speed** on any 
 
 ## 🧠 Persistent Speed Memory
 
-- Every speed change is **saved to localStorage**
+- Every time you change the playback speed, the script will remember it for each website.
 - When the page reloads, the saved speed is **automatically restored** for all videos
 
 ## 🖼 On-Video Overlay
 
-- A small overlay appears in the **top-right corner of the website**
-- Displays current speed and **fades out after 2 seconds**
+- A small overlay appears in the **top-left corner of each video**
+- Displays current speed and **fades out after 1 seconds**
+
+## ⚙️ Configuration Menu
+
+- Right-click on the userscript manager icon (e.g., Tampermonkey) to access the menu
+- **Open configuration**: Customize the speed step (delta), keyboard shortcuts for increase/decrease/reset, and interface language
+- **Reset all configuration**: Restore all settings to their default values
 
 ## 🛠 Installation
 
