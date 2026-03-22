@@ -56,17 +56,22 @@
         opacity: 1;
       }
 
+      .${prefix}-wrapper {
+        height: 100%;
+        width: auto;
+      }
+
       .${prefix}-menu-container {
-            position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #111;
-            color: #fff;
-            padding: 20px;
-            z-index: 99999;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #111;
+        color: #fff;
+        padding: 20px;
+        z-index: 99999;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
       }
 
       .${prefix}-menu-container fieldset {
@@ -394,6 +399,7 @@
     overlay.classList.add(css('overlay'));
 
     const wrapper = document.createElement('div');
+    wrapper.classList.add(css('wrapper'));
 
     const parent = el.parentElement;
     if (!parent) return overlay;
