@@ -44,9 +44,7 @@ A lightweight script that lets you **adjust HTML5 video playback speed** on any 
 ## 🛠 Installation
 
 1. Install the [ScriptCat](https://docs.scriptcat.org/) or [Tampermonkey ](https://www.tampermonkey.net/) browser extension
-2. Create a new userscript
-3. Paste the code from [script.user.js](https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/script.user.js)
-4. Save and enjoy!
+2. Click to install [script.user.js](https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/script.user.js)
 
 ## ✅ Compatible With
 
