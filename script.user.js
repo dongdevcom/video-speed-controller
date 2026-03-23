@@ -6,7 +6,7 @@
 // @author       github@dongdevcom
 // @match        *://*/*
 // @exclude      *://*.twitch.tv/*
-// @run-at       document-start
+// @run-at       document-idle
 // @icon         https://raw.githubusercontent.com/dongdevcom/video-speed-controller/main/docs/icon.png
 // @license      MIT
 // @supportURL   https://github.com/dongdevcom/video-speed-controller/issues
@@ -42,6 +42,7 @@
         color: white;
         padding: 4px 8px;
         border-radius: 6px;
+        font-family: 'Arial', sans-serif;
         font-size: 13px;
         font-family: monospace;
         opacity: 0;
@@ -72,6 +73,8 @@
         z-index: 99999;
         border-radius: 10px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        font-family: 'Arial', sans-serif;
+        font-size: 14px;
       }
 
       .${prefix}-menu-container fieldset {
@@ -103,6 +106,7 @@
         border-radius: 4px;
         background: #222;
         color: #fff;
+        font-family: 'Arial', sans-serif;
         font-size: 14px;
       }
 
@@ -123,6 +127,7 @@
         border: none;
         border-radius: 4px;
         cursor: pointer;
+        font-family: 'Arial', sans-serif;
         font-size: 14px;
       }
 
@@ -168,7 +173,8 @@
         keyError: 'Keys must be single alphanumeric characters',
         langError: 'Invalid language selection',
         resetConfirm: 'Are you sure you want to reset all configuration?',
-        resetDone: 'All configuration has been reset!'
+        resetDone: 'All configuration has been reset!',
+        notSupport: 'Video Speed ​​Controller does not support this website'
       }
     },
     vi: {
@@ -193,7 +199,8 @@
         keyError: 'Các phím phải là ký tự đơn alphanumeric',
         langError: 'Lựa chọn ngôn ngữ không hợp lệ',
         resetConfirm: 'Bạn có chắc chắn muốn xóa toàn bộ cấu hình?',
-        resetDone: 'Đã đặt lại toàn bộ cấu hình!'
+        resetDone: 'Đã đặt lại toàn bộ cấu hình!',
+        notSupport: 'Video Speed Controller không hỗ trợ website này'
       }
     }
   };
@@ -261,39 +268,106 @@
     },
     popup: () => {
       const div = document.createElement('div');
-      div.innerHTML = `
-        <div class='${css('menu-container')}'>
-          <fieldset>
-            <div class="${css('field')}">
-              <label for="${html('delta')}">${t('popup.delta')}</label>
-              <input id="${html('delta')}" type="number" placeholder="${t('popup.inputDelta')}" min="0.1" max="16" step="0.1" value="${config.delta}"/>
-            </div>
-            <div class="${css('field')}">
-              <label for="${html('decrease-key')}">${t('popup.decreaseKey')}</label>
-              <input id="${html('decrease-key')}" type="text" placeholder="${t('popup.inputKey')}" value="${config.key.decrease}" maxlength="1" />
-            </div>
-            <div class="${css('field')}">
-              <label for="${html('increase-key')}">${t('popup.increaseKey')}</label>
-              <input id="${html('increase-key')}" type="text" placeholder="${t('popup.inputKey')}" value="${config.key.increase}" maxlength="1" />
-            </div>
-            <div class="${css('field')}">
-              <label for="${html('reset-key')}">${t('popup.resetKey')}</label>
-              <input id="${html('reset-key')}" type="text" placeholder="${t('popup.inputKey')}" value="${config.key.reset}" maxlength="1" />
-            </div>
-            <div class="${css('field')}">
-              <label for="${html('lang')}">${t('popup.lang')}</label>
-              <select name="${html('lang')}" id="${html('lang')}">
-                <option value="en" ${config.lang === 'en' ? 'selected' : ''}>English</option>
-                <option value="vi" ${config.lang === 'vi' ? 'selected' : ''}>Tiếng Việt</option>
-              </select>
-            </div>
-            <div class="${css('buttons')}">
-              <button id='${html('close')}'>${t('popup.close')}</button>
-              <button id='${html('save')}'>${t('popup.save')}</button>
-            </div>
-          </fieldset>
-        </div>
-      `;
+
+      const container = document.createElement('div');
+      container.className = css('menu-container');
+
+      const fieldset = document.createElement('fieldset');
+
+      const createField = (labelText, inputEl) => {
+        const field = document.createElement('div');
+        field.className = css('field');
+
+        const label = document.createElement('label');
+        label.textContent = labelText;
+
+        if (inputEl.id) {
+          label.setAttribute('for', inputEl.id);
+        }
+
+        field.appendChild(label);
+        field.appendChild(inputEl);
+
+        return field;
+      }
+
+      // delta
+      const deltaInput = document.createElement('input');
+      deltaInput.id = html('delta');
+      deltaInput.type = 'number';
+      deltaInput.placeholder = t('popup.inputDelta');
+      deltaInput.min = '0.1';
+      deltaInput.max = '16';
+      deltaInput.step = '0.1';
+      deltaInput.value = config.delta;
+
+      // decrease key
+      const decreaseInput = document.createElement('input');
+      decreaseInput.id = html('decrease-key');
+      decreaseInput.type = 'text';
+      decreaseInput.placeholder = t('popup.inputKey');
+      decreaseInput.value = config.key.decrease;
+      decreaseInput.maxLength = 1;
+
+      // increase key
+      const increaseInput = document.createElement('input');
+      increaseInput.id = html('increase-key');
+      increaseInput.type = 'text';
+      increaseInput.placeholder = t('popup.inputKey');
+      increaseInput.value = config.key.increase;
+      increaseInput.maxLength = 1;
+
+      // reset key
+      const resetInput = document.createElement('input');
+      resetInput.id = html('reset-key');
+      resetInput.type = 'text';
+      resetInput.placeholder = t('popup.inputKey');
+      resetInput.value = config.key.reset;
+      resetInput.maxLength = 1;
+
+      // lang select
+      const langSelect = document.createElement('select');
+      langSelect.name = html('lang');
+      langSelect.id = html('lang');
+
+      const optEn = document.createElement('option');
+      optEn.value = 'en';
+      optEn.textContent = 'English';
+      if (config.lang === 'en') optEn.selected = true;
+
+      const optVi = document.createElement('option');
+      optVi.value = 'vi';
+      optVi.textContent = 'Tiếng Việt';
+      if (config.lang === 'vi') optVi.selected = true;
+
+      langSelect.appendChild(optEn);
+      langSelect.appendChild(optVi);
+
+      // buttons
+      const buttons = document.createElement('div');
+      buttons.className = css('buttons');
+
+      const btnClose = document.createElement('button');
+      btnClose.id = html('close');
+      btnClose.textContent = t('popup.close');
+
+      const btnSave = document.createElement('button');
+      btnSave.id = html('save');
+      btnSave.textContent = t('popup.save');
+
+      buttons.appendChild(btnClose);
+      buttons.appendChild(btnSave);
+
+      fieldset.appendChild(createField(t('popup.delta'), deltaInput));
+      fieldset.appendChild(createField(t('popup.decreaseKey'), decreaseInput));
+      fieldset.appendChild(createField(t('popup.increaseKey'), increaseInput));
+      fieldset.appendChild(createField(t('popup.resetKey'), resetInput));
+      fieldset.appendChild(createField(t('popup.lang'), langSelect));
+      fieldset.appendChild(buttons);
+
+      container.appendChild(fieldset);
+      div.appendChild(container);
+
       document.body.appendChild(div);
 
       document.getElementById(html('close')).onclick = () => {
@@ -411,14 +485,23 @@
     return overlay;
   }
 
-  GM_addStyle(style);
-  loadConfig();
-  GM_registerMenuCommand(t('menu.openConfig'), menu.popup);
-  GM_registerMenuCommand(t('menu.resetConfig'), menu.reset);
-  document.addEventListener('playing', handlePlaying, { capture: true });
-  document.addEventListener('keydown', handleKeydown);
-  observer.observe(document.body, { childList: true, subtree: true });
-  window.addEventListener('beforeunload', () => {
-    observer.disconnect();
-  });
+  try {
+    GM_addStyle(style);
+    loadConfig();
+    GM_registerMenuCommand(t('menu.openConfig'), menu.popup);
+    GM_registerMenuCommand(t('menu.resetConfig'), menu.reset);
+    document.addEventListener('playing', handlePlaying, { capture: true });
+    document.addEventListener('keydown', handleKeydown);
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('beforeunload', () => {
+      try { document.removeEventListener('playing', handlePlaying); } catch { }
+      try { document.removeEventListener('keydown', handleKeydown); } catch { }
+      try { observer.disconnect(); } catch { }
+    });
+  } catch {
+    console.warn(t('messages.notSupport'));
+    try { document.removeEventListener('playing', handlePlaying); } catch { }
+    try { document.removeEventListener('keydown', handleKeydown); } catch { }
+    try { observer.disconnect(); } catch { }
+  }
 })();
