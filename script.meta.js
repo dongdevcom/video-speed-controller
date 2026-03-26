@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Video Speed Controller
 // @namespace    https://github.com/dongdevcom/video-speed-controller/
-// @version      1.0.4
+// @version      1.0.5
 // @description  Adjust and remember video speed using keyboard shortcuts
 // @author       github@dongdevcom
 // @match        *://*/*
 // @exclude      *://*.twitch.tv/*
-// @run-at       document-start
+// @run-at       document-idle
 // @icon         https://raw.githubusercontent.com/dongdevcom/video-speed-controller/main/docs/icon.png
 // @license      MIT
 // @supportURL   https://github.com/dongdevcom/video-speed-controller/issues
