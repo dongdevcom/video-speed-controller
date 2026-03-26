@@ -427,6 +427,7 @@
   };
 
   const handleKeydown = (e) => {
+    if (!getVideos()) return;
     const tag = e.target.tagName.toLowerCase();
     if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
 
@@ -464,7 +465,7 @@
     overlay._timeout = setTimeout(() => {
       overlay.classList.remove(css('overlay-active'));
     }, 2000);
-  }
+  };
 
   const createOverlay = (el) => {
     if (el._overlay) return el._overlay;
@@ -483,7 +484,7 @@
 
     el._overlay = overlay;
     return overlay;
-  }
+  };
 
   try {
     GM_addStyle(style);
@@ -493,15 +494,10 @@
     document.addEventListener('playing', handlePlaying, { capture: true });
     document.addEventListener('keydown', handleKeydown);
     observer.observe(document.body, { childList: true, subtree: true });
-    window.addEventListener('beforeunload', () => {
-      try { document.removeEventListener('playing', handlePlaying); } catch { }
-      try { document.removeEventListener('keydown', handleKeydown); } catch { }
-      try { observer.disconnect(); } catch { }
-    });
   } catch {
     console.warn(t('messages.notSupport'));
-    try { document.removeEventListener('playing', handlePlaying); } catch { }
-    try { document.removeEventListener('keydown', handleKeydown); } catch { }
-    try { observer.disconnect(); } catch { }
+    document.removeEventListener('playing', handlePlaying);
+    document.removeEventListener('keydown', handleKeydown);
+    observer.disconnect();
   }
 })();
