@@ -31,20 +31,24 @@
     rate: 1.0,
     lang: null
   };
+  const type = Object.freeze({
+    increase: 1,
+    decrease: 2,
+    reset: 3
+  });
   const prefix = 'dd-vid-speed';
   const style = `
       .${prefix}-overlay {
+        display: flex;
+        gap: 4px;
         position: absolute;
-        top: 10px;
+        top: 60px;
         left: 10px;
         z-index: 9999;
         background: rgba(0,0,0,0.6);
         color: white;
         padding: 4px 8px;
         border-radius: 6px;
-        font-family: 'Arial', sans-serif;
-        font-size: 13px;
-        font-family: monospace;
         opacity: 0;
         transition: 1s;
       }
@@ -60,6 +64,25 @@
       .${prefix}-wrapper {
         height: 100%;
         width: auto;
+      }
+
+      .${prefix}-overlay-text {
+        display: flex;
+        gap: 2px;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+
+      .${prefix}-overlay-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.65);
+        border-radius: 5px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
       }
 
       .${prefix}-menu-container {
@@ -150,6 +173,23 @@
       }
   `;
 
+  const svgs = {
+    [type.increase]: [
+      { stroke: 'white', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M4 12H20M12 4V20' }
+    ],
+    [type.decrease]: [
+      { stroke: 'white', 'stroke-width': '2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M6 12L18 12' }
+    ],
+    [type.reset]: [
+      { stroke: 'white', d: 'M22.719 12A10.719 10.719 0 0 1 1.28 12h.838a9.916 9.916 0 1 0 1.373-5H8v1H2V2h1v4.2A10.71 10.71 0 0 1 22.719 12z' }
+    ],
+    speed: [
+      { stroke: 'white', 'stroke-width': '1.5', 'stroke-linecap': 'round', d: 'M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2' },
+      { stroke: 'white', 'stroke-width': '1.5', 'stroke-linecap': 'round', 'stroke-dasharray': '4 3', opacity: '0.5', d: 'M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.97715 2 12.5 2' },
+      { stroke: 'white', 'stroke-width': '1.5', d: 'M15.4137 10.941C16.1954 11.4026 16.1954 12.5974 15.4137 13.059L10.6935 15.8458C9.93371 16.2944 9 15.7105 9 14.7868L9 9.21316C9 8.28947 9.93371 7.70561 10.6935 8.15419L15.4137 10.941Z' }
+    ]
+  };
+
   const languages = {
     en: {
       menu: {
@@ -234,6 +274,29 @@
     return str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? `{${k}}`);
   };
 
+  const h = ({ tag, attrs = {}, children = [] }) => {
+    const el = ['svg', 'path'].indexOf(tag) > -1
+      ? document.createElementNS('http://www.w3.org/2000/svg', tag)
+      : document.createElement(tag);
+
+    Object.entries(attrs ?? {}).forEach(([k, v]) => el.setAttribute(k, v));
+    if (!Array.isArray(children)) {
+      children = [children]
+    }
+    children?.forEach(child => {
+      if (typeof child === 'string') {
+        el.appendChild(document.createTextNode(child));
+      } else if (child instanceof Node) {
+        el.appendChild(child);
+      } else if (Array.isArray(child)) {
+        child.forEach(c => c && el.appendChild(c));
+      } else {
+        el.appendChild(h(child));
+      }
+    });
+    return el;
+  };
+
   const getSiteId = () => {
     const hostname = window.location.hostname;
     return hostname.replaceAll('.', '_');
@@ -261,147 +324,100 @@
       if (confirm(t('messages.resetConfirm'))) {
         GM_setValue('config', {});
         loadConfig();
-        if (!alert(t('messages.resetDone'))) {
-          window.location.reload();
-        }
+        alert(t('messages.resetDone'));
+        window.location.reload();
       }
     },
     popup: () => {
-      const div = document.createElement('div');
-
-      const container = document.createElement('div');
-      container.className = css('menu-container');
-
-      const fieldset = document.createElement('fieldset');
-
-      const createField = (labelText, inputEl) => {
-        const field = document.createElement('div');
-        field.className = css('field');
-
-        const label = document.createElement('label');
-        label.textContent = labelText;
-
-        if (inputEl.id) {
-          label.setAttribute('for', inputEl.id);
+      const fieldset = [
+        {
+          tag: 'div', attrs: { class: css('field') },
+          children: [
+            { tag: 'label', attrs: { for: html('delta') }, children: t('popup.delta') },
+            { tag: 'input', attrs: { id: html('delta'), type: 'number', placeholder: t('popup.inputDelta'), min: '0.1', max: '16', step: '0.1', value: config.delta } }
+          ]
+        },
+        {
+          tag: 'div', attrs: { class: css('field') },
+          children: [
+            { tag: 'label', attrs: { for: html('decrease-key') }, children: t('popup.decreaseKey') },
+            { tag: 'input', attrs: { id: html('decrease-key'), type: 'text', placeholder: t('popup.inputKey'), value: config.key.decrease, maxLength: 1 } }
+          ]
+        },
+        {
+          tag: 'div', attrs: { class: css('field') },
+          children: [
+            { tag: 'label', attrs: { for: html('increase-key') }, children: t('popup.increaseKey') },
+            { tag: 'input', attrs: { id: html('increase-key'), type: 'text', placeholder: t('popup.inputKey'), value: config.key.increase, maxLength: 1 } }
+          ]
+        },
+        {
+          tag: 'div', attrs: { class: css('field') },
+          children: [
+            { tag: 'label', attrs: { for: html('reset-key') }, children: t('popup.resetKey') },
+            { tag: 'input', attrs: { id: html('reset-key'), type: 'text', placeholder: t('popup.inputKey'), value: config.key.reset, maxLength: 1 } }
+          ]
+        },
+        {
+          tag: 'div', attrs: { class: css('field') },
+          children: [
+            { tag: 'label', attrs: { for: html('lang') }, children: t('popup.lang') },
+            {
+              tag: 'select', attrs: { id: html('lang'), name: html('lang') }, children: [
+                { tag: 'option', attrs: { value: 'en', selected: config.lang === 'en' }, children: 'English' },
+                { tag: 'option', attrs: { value: 'vi', selected: config.lang === 'vi' }, children: 'Tiếng Việt' }
+              ]
+            }
+          ]
+        },
+        {
+          tag: 'div', attrs: { class: css('buttons') },
+          children: [
+            { tag: 'button', attrs: { id: html('close') }, children: t('popup.close') },
+            { tag: 'button', attrs: { id: html('save') }, children: t('popup.save') }
+          ]
         }
+      ];
+      const fieldsetEl = h({ tag: 'fieldset', children: fieldset.map(f => h(f)) });
+      const container = h({ tag: 'div', attrs: { class: css('menu-container') }, children: [fieldsetEl] });
+      document.body.appendChild(container);
 
-        field.appendChild(label);
-        field.appendChild(inputEl);
+      const getElement = (id) => document.getElementById(html(id));
+      const getInputValue = (id) => getElement(id)?.value?.trim();
 
-        return field;
-      }
-
-      // delta
-      const deltaInput = document.createElement('input');
-      deltaInput.id = html('delta');
-      deltaInput.type = 'number';
-      deltaInput.placeholder = t('popup.inputDelta');
-      deltaInput.min = '0.1';
-      deltaInput.max = '16';
-      deltaInput.step = '0.1';
-      deltaInput.value = config.delta;
-
-      // decrease key
-      const decreaseInput = document.createElement('input');
-      decreaseInput.id = html('decrease-key');
-      decreaseInput.type = 'text';
-      decreaseInput.placeholder = t('popup.inputKey');
-      decreaseInput.value = config.key.decrease;
-      decreaseInput.maxLength = 1;
-
-      // increase key
-      const increaseInput = document.createElement('input');
-      increaseInput.id = html('increase-key');
-      increaseInput.type = 'text';
-      increaseInput.placeholder = t('popup.inputKey');
-      increaseInput.value = config.key.increase;
-      increaseInput.maxLength = 1;
-
-      // reset key
-      const resetInput = document.createElement('input');
-      resetInput.id = html('reset-key');
-      resetInput.type = 'text';
-      resetInput.placeholder = t('popup.inputKey');
-      resetInput.value = config.key.reset;
-      resetInput.maxLength = 1;
-
-      // lang select
-      const langSelect = document.createElement('select');
-      langSelect.name = html('lang');
-      langSelect.id = html('lang');
-
-      const optEn = document.createElement('option');
-      optEn.value = 'en';
-      optEn.textContent = 'English';
-      if (config.lang === 'en') optEn.selected = true;
-
-      const optVi = document.createElement('option');
-      optVi.value = 'vi';
-      optVi.textContent = 'Tiếng Việt';
-      if (config.lang === 'vi') optVi.selected = true;
-
-      langSelect.appendChild(optEn);
-      langSelect.appendChild(optVi);
-
-      // buttons
-      const buttons = document.createElement('div');
-      buttons.className = css('buttons');
-
-      const btnClose = document.createElement('button');
-      btnClose.id = html('close');
-      btnClose.textContent = t('popup.close');
-
-      const btnSave = document.createElement('button');
-      btnSave.id = html('save');
-      btnSave.textContent = t('popup.save');
-
-      buttons.appendChild(btnClose);
-      buttons.appendChild(btnSave);
-
-      fieldset.appendChild(createField(t('popup.delta'), deltaInput));
-      fieldset.appendChild(createField(t('popup.decreaseKey'), decreaseInput));
-      fieldset.appendChild(createField(t('popup.increaseKey'), increaseInput));
-      fieldset.appendChild(createField(t('popup.resetKey'), resetInput));
-      fieldset.appendChild(createField(t('popup.lang'), langSelect));
-      fieldset.appendChild(buttons);
-
-      container.appendChild(fieldset);
-      div.appendChild(container);
-
-      document.body.appendChild(div);
-
-      document.getElementById(html('close')).onclick = () => {
-        div.remove();
+      getElement('close').onclick = () => {
+        container.remove();
       };
 
-      document.getElementById(html('save')).onclick = () => {
-        const deltaVal = parseFloat(document.getElementById(html('delta')).value);
+      getElement('save').onclick = () => {
+        const deltaVal = parseFloat(getInputValue('delta'));
         if (isNaN(deltaVal) || deltaVal < 0.1 || deltaVal > 16) {
           alert(t('messages.deltaError'));
           return;
         }
-        const decreaseKey = document.getElementById(html('decrease-key')).value.trim();
-        const increaseKey = document.getElementById(html('increase-key')).value.trim();
-        const resetKey = document.getElementById(html('reset-key')).value.trim();
+        const decreaseKey = getInputValue('decrease-key');
+        const increaseKey = getInputValue('increase-key');
+        const resetKey = getInputValue('reset-key');
         const keyRegex = /^[a-zA-Z0-9]$/;
         if (!keyRegex.test(decreaseKey) || !keyRegex.test(increaseKey) || !keyRegex.test(resetKey)) {
           alert(t('messages.keyError'));
           return;
         }
-        const langVal = document.getElementById(html('lang')).value;
+        const langVal = getInputValue('lang');
         if (!['en', 'vi'].includes(langVal)) {
           alert(t('messages.langError'));
           return;
         }
+
         saveConfig('delta', deltaVal);
         saveConfig('key.decrease', decreaseKey.toLowerCase());
         saveConfig('key.increase', increaseKey.toLowerCase());
         saveConfig('key.reset', resetKey.toLowerCase());
         saveConfig('lang', langVal);
-        if (!alert(t('messages.saved'))) {
-          window.location.reload();
-        }
-        div.remove();
+
+        container.remove();
+        alert(t('messages.saved'));
+        window.location.reload();
       };
     }
   };
@@ -410,7 +426,7 @@
 
   const applyPlaybackRate = (rate) => {
     getVideos().forEach(el => {
-      if (el && typeof el.playbackRate === 'number' && el.playbackRate !== rate) {
+      if (el && typeof el.playbackRate === 'number' && (el.playbackRate !== rate || !el._initOverlay)) {
         el.playbackRate = rate;
         updateOverlay(el, el.playbackRate);
       }
@@ -432,21 +448,30 @@
     if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
 
     const key = e.key.toLowerCase();
-    const currentRate = getCurrentRate(getVideos());
-    let rate = currentRate;
 
     switch (key) {
       case config.key.decrease:
-        rate = Math.max(0.1, Math.min(currentRate - config.delta, 16));
+        playbackRateHandle(type.decrease);
         break;
       case config.key.increase:
-        rate = Math.max(0.1, Math.min(currentRate + config.delta, 16));
+        playbackRateHandle(type.increase);
         break;
       case config.key.reset:
-        rate = 1.0;
+        playbackRateHandle(type.reset);
         break;
       default:
         return;
+    }
+  };
+
+  const playbackRateHandle = (t) => {
+    const currentRate = getCurrentRate(getVideos());
+    let rate = 1.0;
+    if (t === type.increase) {
+      rate = Math.max(0.1, Math.min(currentRate + config.delta, 16));
+    }
+    if (t === type.decrease) {
+      rate = Math.max(0.1, Math.min(currentRate - config.delta, 16));
     }
     saveConfig(`rates.${getSiteId()}`, rate);
     applyPlaybackRate(rate);
@@ -457,8 +482,8 @@
   });
 
   const updateOverlay = (el, rate) => {
-    const overlay = createOverlay(el);
-    overlay.textContent = `🚀 ${rate.toFixed(1)}x`;
+    const { overlay, text } = createOverlay(el);
+    text.textContent = rate.toFixed(1);
     overlay.classList.add(css('overlay-active'));
 
     clearTimeout(overlay._timeout);
@@ -467,23 +492,45 @@
     }, 2000);
   };
 
+  const createIcon = (name, size) => {
+    return h({ tag: 'svg', attrs: { viewBox: '0 0 24 24', width: size, height: size }, children: svgs[name].map(attrs => h({ tag: 'path', attrs })) });
+  };
+
   const createOverlay = (el) => {
-    if (el._overlay) return el._overlay;
+    if (el._initOverlay) {
+      return { overlay: el._overlay, text: el._text };
+    }
 
-    const overlay = document.createElement('div');
-    overlay.classList.add(css('overlay'));
+    const createButton = (t) => {
+      const button = h({ tag: 'div', attrs: { class: css('overlay-button') }, children: [createIcon(t, '14px')] });
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playbackRateHandle(t);
+      });
+      return button;
+    };
 
-    const wrapper = document.createElement('div');
-    wrapper.classList.add(css('wrapper'));
+    const text = h({ tag: 'span' });
+    const overlay = h({
+      tag: 'div', attrs: { class: css('overlay') }, children: [
+        { tag: 'div', attrs: { class: css('overlay-text') }, children: [createIcon('speed', '16px'), text] },
+        createButton(type.decrease),
+        createButton(type.reset),
+        createButton(type.increase)
+      ]
+    });
+    const wrapper = h({ tag: 'div', attrs: { class: css('wrapper') }, children: overlay });
 
     const parent = el.parentElement;
-    if (!parent) return overlay;
-    parent.insertBefore(wrapper, el);
-    wrapper.appendChild(el);
-    wrapper.appendChild(overlay);
+    if (parent) {
+      parent.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
+    }
 
     el._overlay = overlay;
-    return overlay;
+    el._text = text;
+    el._initOverlay = true;
+    return { overlay: el._overlay, text: el._text };
   };
 
   try {
