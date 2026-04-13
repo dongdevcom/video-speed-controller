@@ -40,10 +40,12 @@
   const style = `
       .${prefix}-overlay {
         display: flex;
-        gap: 4px;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
         position: absolute;
-        top: 60px;
-        left: 10px;
+        top: 8%;
+        left: 2%;
         z-index: 9999;
         background: rgba(0,0,0,0.6);
         color: white;
@@ -245,6 +247,8 @@
     }
   };
 
+  let scheduled = false;
+
   const css = (name) => `${prefix}-${name}`;
   const html = css;
   const get = (obj, path) => {
@@ -425,11 +429,22 @@
   const getVideos = () => document.querySelectorAll('video');
 
   const applyPlaybackRate = (rate) => {
-    getVideos().forEach(el => {
-      if (el && typeof el.playbackRate === 'number' && (el.playbackRate !== rate || !el._initOverlay)) {
-        el.playbackRate = rate;
-        updateOverlay(el, el.playbackRate);
-      }
+    if (scheduled) return;
+    scheduled = true;
+
+    requestAnimationFrame(() => {
+      scheduled = false;
+      getVideos().forEach(el => {
+        if (el && typeof el.playbackRate === 'number') {
+          if (!el._data) {
+            createOverlay(el, el.playbackRate);
+          }
+          if (el.playbackRate !== rate) {
+            el.playbackRate = rate;
+            createOverlay(el, el.playbackRate);
+          }
+        }
+      });
     });
   };
 
@@ -481,8 +496,8 @@
     applyPlaybackRate(config.rate);
   });
 
-  const updateOverlay = (el, rate) => {
-    const { overlay, text } = createOverlay(el);
+  const createOverlay = (el, rate) => {
+    const { overlay, text } = initOverlay(el);
     text.textContent = rate.toFixed(1);
     overlay.classList.add(css('overlay-active'));
 
@@ -496,24 +511,34 @@
     return h({ tag: 'svg', attrs: { viewBox: '0 0 24 24', width: size, height: size }, children: svgs[name].map(attrs => h({ tag: 'path', attrs })) });
   };
 
-  const createOverlay = (el) => {
-    if (el._initOverlay) {
-      return { overlay: el._overlay, text: el._text };
+  const initOverlay = (el) => {
+    if (el._data) {
+      return el._data;
+    }
+
+    const style = window.getComputedStyle(el);
+    if (style.position === 'absolute') {
+      el.style.position = 'relative';
     }
 
     const createButton = (t) => {
+      const stop = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      };
       const button = h({ tag: 'div', attrs: { class: css('overlay-button') }, children: [createIcon(t, '14px')] });
       button.addEventListener('click', (e) => {
-        e.stopPropagation();
+        stop(e);
         playbackRateHandle(t);
       });
+      button.addEventListener('dblclick', stop);
       return button;
     };
 
     const text = h({ tag: 'span' });
     const overlay = h({
       tag: 'div', attrs: { class: css('overlay') }, children: [
-        { tag: 'div', attrs: { class: css('overlay-text') }, children: [createIcon('speed', '16px'), text] },
+        { tag: 'div', attrs: { class: css('overlay-text') }, children: [createIcon('speed', '14px'), text] },
         createButton(type.decrease),
         createButton(type.reset),
         createButton(type.increase)
@@ -527,10 +552,8 @@
       wrapper.appendChild(el);
     }
 
-    el._overlay = overlay;
-    el._text = text;
-    el._initOverlay = true;
-    return { overlay: el._overlay, text: el._text };
+    el._data = { wrapper, overlay, text };
+    return el._data;
   };
 
   try {
