@@ -44,7 +44,7 @@ Một script giúp bạn **tăng/giảm tốc độ phát video** trên bất k�
 ## 🛠 Cài đặt
 
 1. Cài extension [ScriptCat](https://docs.scriptcat.org/) hoặc [Tampermonkey](https://www.tampermonkey.net/) cho trình duyệt.
-2. Click để cài đặt [script.user.js](https://raw.githubusercontent.com/dongcodebmt/video-speed-controller/main/script.user.js)
+2. Click để cài đặt [script.user.js](https://github.com/dongdevcom/video-speed-controller/releases/latest/download/video-speed-controller.user.js)
 
 ## 📦 Tương thích
 

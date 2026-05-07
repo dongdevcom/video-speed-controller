@@ -21,8 +21,8 @@ export default defineConfig({
         exclude: ['*://*.twitch.tv/*'],
         'run-at': 'document-idle',
         supportURL: 'https://github.com/dongdevcom/video-speed-controller/issues',
-        updateURL: 'https://raw.githubusercontent.com/dongdevcom/video-speed-controller/main/script.meta.js',
-        downloadURL: 'https://raw.githubusercontent.com/dongdevcom/video-speed-controller/main/script.user.js',
+        updateURL: 'https://github.com/dongdevcom/video-speed-controller/releases/latest/download/video-speed-controller.user.js',
+        downloadURL: 'https://github.com/dongdevcom/video-speed-controller/releases/latest/download/video-speed-controller.user.js',
         description: 'Adjust and remember video speed using keyboard shortcuts',
         license: 'MIT',
       }
