@@ -1,14 +1,21 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { SpeedLoopIcon, MinusIcon, PlusIcon, ResetIcon } from '$lib/icons';
-  import { playbackRateHandle } from '$lib/content';
   import { Action } from '$lib/types';
-  import { debounce } from '$lib/utils';
+  import { debounce, styleObjectToString } from '$lib/utils';
   import { t } from '$lib/stores';
 
-  let { video } = $props();
+  export interface OverlayProps {
+    video: HTMLVideoElement;
+    handler: (action: Action) => void;
+    style: () => Record<string, any>;
+  }
+
+  let { video, handler, style }: OverlayProps = $props();
+  
   let rate = $state(1.0);
   let active = $state(false);
+  let styleState = $state({});
 
   /** Deactivate the overlay 1 s after the last rate change. Created once so debounce works correctly. */
   const scheduleDeactivate = debounce(() => {
@@ -22,9 +29,14 @@
       scheduleDeactivate();
     };
 
+    const resizeObserver = new ResizeObserver(() => {
+      styleState = style();
+    });
+    resizeObserver.observe(video);
     video.addEventListener('ratechange', handleRateChange);
 
     return () => {
+      resizeObserver.disconnect();
       video.removeEventListener('ratechange', handleRateChange);
     };
   });
@@ -36,55 +48,69 @@
 
   const increase = (e: MouseEvent) => {
     stop(e);
-    playbackRateHandle(Action.Increase);
+    handler(Action.Increase);
   };
   const decrease = (e: MouseEvent) => {
     stop(e);
-    playbackRateHandle(Action.Decrease);
+    handler(Action.Decrease);
   };
   const reset = (e: MouseEvent) => {
     stop(e);
-    playbackRateHandle(Action.Reset);
+    handler(Action.Reset);
   };
 </script>
 
-<div class:active class="overlay">
-  <div class="overlay-text">
-    <SpeedLoopIcon width={16} height={16} color="white" />
-    <span>{rate.toFixed(1)}</span>
-  </div>
-  <div class="overlay-controls">
-    <button
-      class="overlay-button"
-      onclick={decrease}
-      ondblclick={stop}
-      aria-label={$t('aria.decrease_speed')}
-    >
-      <MinusIcon width={14} height={14} color="white" />
-    </button>
-    <button
-      class="overlay-button"
-      onclick={reset}
-      ondblclick={stop}
-      aria-label={$t('aria.reset_speed')}
-    >
-      <ResetIcon width={14} height={14} color="white" />
-    </button>
-    <button
-      class="overlay-button"
-      onclick={increase}
-      ondblclick={stop}
-      aria-label={$t('aria.increase_speed')}
-    >
-      <PlusIcon width={14} height={14} color="white" />
-    </button>
+<div class="overlay-wrapper">
+  <div
+    class:active
+    class="overlay"
+    style={styleObjectToString(styleState)}
+  >
+    <div class="overlay-text">
+      <SpeedLoopIcon width={16} height={16} color="white" />
+      <span>{rate.toFixed(1)}</span>
+    </div>
+    <div class="overlay-controls">
+      <button
+        class="overlay-button"
+        onclick={decrease}
+        ondblclick={stop}
+        aria-label={$t('aria.decrease_speed')}
+      >
+        <MinusIcon width={14} height={14} color="white" />
+      </button>
+      <button
+        class="overlay-button"
+        onclick={reset}
+        ondblclick={stop}
+        aria-label={$t('aria.reset_speed')}
+      >
+        <ResetIcon width={14} height={14} color="white" />
+      </button>
+      <button
+        class="overlay-button"
+        onclick={increase}
+        ondblclick={stop}
+        aria-label={$t('aria.increase_speed')}
+      >
+        <PlusIcon width={14} height={14} color="white" />
+      </button>
+    </div>
   </div>
 </div>
 
 <style>
+  .overlay-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 9999 !important;
+  }
+
   .overlay {
-    top: 20px;
-    left: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -95,6 +121,7 @@
     opacity: 0;
     transition: 1s;
     gap: 0;
+    pointer-events: auto;
   }
 
   .overlay:hover {

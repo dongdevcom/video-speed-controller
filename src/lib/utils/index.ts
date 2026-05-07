@@ -17,3 +17,12 @@ export const debounce = <T extends unknown[]>(
     timer = setTimeout(() => func(...args), delay);
   };
 };
+
+/**
+ * Convert overlayStyle object to inline CSS string
+ */
+export const styleObjectToString = (styleObj: Record<string, any>): string => {
+  return Object.entries(styleObj)
+    .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}:${value}`)
+    .join(';');
+};

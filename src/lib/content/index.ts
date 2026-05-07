@@ -1,4 +1,3 @@
-export * from './dom';
 export * from './init';
 export * from './menu';
 export * from './overlay';

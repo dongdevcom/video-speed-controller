@@ -1,0 +1,27 @@
+/**
+ * Default handler used for all sites when no specialized handler matches.
+ */
+export class BaseHandler {
+  public matches(_url: URL = new URL(window.location.href)): boolean {
+    return true;
+  }
+
+  public getVideos(root: Document = document): HTMLVideoElement[] {
+    return Array.from(root.querySelectorAll('video')).filter(video => !this.shouldIgnore(video));
+  }
+
+  public shouldIgnore(_video: HTMLVideoElement): boolean {
+    return false;
+  }
+
+  public getPosition(_video: HTMLVideoElement): HTMLElement {
+    return _video.parentElement ?? document.body;
+  }
+
+  public getStyles(_video: HTMLVideoElement): Record<string, any> {
+    return {
+      left: '10px',
+      top: '20px'
+    };
+  }
+}
