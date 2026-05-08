@@ -31,8 +31,13 @@ jobs:
         run: |
           echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: v${{ steps.package-version.outputs.version }}
-          files: dist/*.user.js
+      - name: Release with GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="v${{ steps.package-version.outputs.version }}"
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME" \
+            --generate-notes \
+            dist/*.user.js \
+            dist/*.meta.js

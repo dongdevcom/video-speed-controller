@@ -21,8 +21,8 @@ const translations: Translations = {
     'popup.lang': 'Language',
     'popup.save': 'Save',
     'popup.close': 'Close',
-    'menu.open_config': '🛠️ Open configuration',
-    'menu.reset_config': '🔄 Reset all configuration'
+    'menu.open_config': 'Open configuration',
+    'menu.reset_config': 'Reset all configuration'
   },
   vi: {
     'message.not_support': 'Video Speed Controller không hỗ trợ website này!',
@@ -44,8 +44,8 @@ const translations: Translations = {
     'popup.lang': 'Ngôn ngữ',
     'popup.save': 'Lưu',
     'popup.close': 'Đóng',
-    'menu.open_config': '🛠️ Mở cấu hình',
-    'menu.reset_config': '🔄 Đặt lại toàn bộ cấu hình'
+    'menu.open_config': 'Mở cấu hình',
+    'menu.reset_config': 'Đặt lại toàn bộ cấu hình'
   },
 };
 

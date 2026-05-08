@@ -25,7 +25,7 @@ export const unregisterMenu = (): void => {
 export const registerMenu = (): void => {
   const t = get(i18n);
 
-  menuId = GM_registerMenuCommand(t('menu.open_config'), () => {
+  menuId = GM_registerMenuCommand(`🛠️ ${t('menu.open_config')}`, () => {
     if (configInstance) return; // prevent stacking duplicate dialogs
     configInstance = mount(Config, {
       target: document.body,
@@ -33,5 +33,5 @@ export const registerMenu = (): void => {
     });
   });
 
-  resetId = GM_registerMenuCommand(t('menu.reset_config'), () => resetDialog());
+  resetId = GM_registerMenuCommand(`🔄 ${t('menu.reset_config')}`, () => resetDialog());
 };
