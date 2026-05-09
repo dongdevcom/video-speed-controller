@@ -135,7 +135,6 @@
   .overlay-text {
     display: flex;
     gap: 2px;
-    align-items: center;
     justify-content: center;
   }
 
