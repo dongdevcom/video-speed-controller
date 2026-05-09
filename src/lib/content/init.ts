@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import { t as i18n, locale, config } from '$lib/stores';
-import { registerMenu, PlaybackController, OverlayController } from '$lib/content';
+import { MenuController, PlaybackController, OverlayController } from '$lib/content';
 import { SiteHandlerManager } from '$lib/handlers';
 
 /**
@@ -15,6 +15,7 @@ export const init = (): void => {
   const manager = new SiteHandlerManager();
   const playback = new PlaybackController(manager);
   const overlay = new OverlayController(manager);
+  const menu = new MenuController();
 
   const observer = new MutationObserver(() => {
     const videos = playback.handlePlaying();
@@ -22,7 +23,9 @@ export const init = (): void => {
   });
 
   try {
-    registerMenu();
+    menu.registerMenu();
+    if (config.disabled()) return;
+
     document.addEventListener('keydown', playback.handleKeydown);
     observer.observe(document.body, { childList: true, subtree: true });
   } catch {

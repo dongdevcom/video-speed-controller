@@ -1,6 +1,5 @@
 <script lang="ts">
   import { t, config, locales, locale } from '$lib/stores';
-  import { registerMenu, unregisterMenu } from '$lib/content';
   import { LANGUAGES } from '$lib/constants';
 
   /** Callback provided by the mount site (menu.ts) to properly unmount this component. */
@@ -57,8 +56,6 @@
       lang,
     }));
 
-    unregisterMenu();
-    registerMenu();
     locale.set(lang);
     alert($t('message.saved'));
     window.location.reload();

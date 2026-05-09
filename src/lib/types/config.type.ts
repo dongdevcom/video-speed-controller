@@ -11,4 +11,5 @@ export interface ConfigData {
   };
   lang: string;
   rates: Record<string, SiteRate>;
+  exclusions: string[];
 }

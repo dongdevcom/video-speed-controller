@@ -9,6 +9,8 @@ const translations: Translations = {
     'message.lang_error': 'Invalid language selection',
     'message.reset_confirm': 'Are you sure you want to reset all configuration?',
     'message.reset_done': 'All configuration has been reset!',
+    'message.exclusion_added': 'Website has been added to the exclusion list!',
+    'message.exclusion_removed': 'Website has been removed from the exclusion list!',
     'aria.decrease_speed': 'Decrease speed',
     'aria.increase_speed': 'Increase speed',
     'aria.reset_speed': 'Reset speed',
@@ -22,7 +24,9 @@ const translations: Translations = {
     'popup.save': 'Save',
     'popup.close': 'Close',
     'menu.open_config': 'Open configuration',
-    'menu.reset_config': 'Reset all configuration'
+    'menu.reset_config': 'Reset all configuration',
+    'menu.exclusion_add': 'Disable',
+    'menu.exclusion_remove': 'Enable'
   },
   vi: {
     'message.not_support': 'Video Speed Controller không hỗ trợ website này!',
@@ -32,6 +36,8 @@ const translations: Translations = {
     'message.lang_error': 'Lựa chọn ngôn ngữ không hợp lệ',
     'message.reset_confirm': 'Bạn có chắc chắn muốn xóa toàn bộ cấu hình?',
     'message.reset_done': 'Đã đặt lại toàn bộ cấu hình!',
+    'message.exclusion_added': 'Đã thêm trang web vào danh sách loại trừ!',
+    'message.exclusion_removed': 'Đã xóa trang web khỏi danh sách loại trừ!',
     'aria.decrease_speed': 'Giảm tốc độ',
     'aria.increase_speed': 'Tăng tốc độ',
     'aria.reset_speed': 'Đặt lại tốc độ',
@@ -45,7 +51,9 @@ const translations: Translations = {
     'popup.save': 'Lưu',
     'popup.close': 'Đóng',
     'menu.open_config': 'Mở cấu hình',
-    'menu.reset_config': 'Đặt lại toàn bộ cấu hình'
+    'menu.reset_config': 'Đặt lại toàn bộ cấu hình',
+    'menu.exclusion_add': 'Tắt',
+    'menu.exclusion_remove': 'Bật'
   },
 };
 

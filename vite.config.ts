@@ -18,7 +18,6 @@ export default defineConfig({
         namespace: 'github@dongdevcom/video-speed-controller',
         author: 'github@dongdevcom',
         match: ['*://*/*'],
-        exclude: ['*://*.twitch.tv/*'],
         'run-at': 'document-idle',
         supportURL: 'https://github.com/dongdevcom/video-speed-controller/issues',
         updateURL: 'https://github.com/dongdevcom/video-speed-controller/releases/latest/download/video-speed-controller.meta.js',

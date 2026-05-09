@@ -6,5 +6,6 @@ export const DEFAULT_CONFIG = {
     reset: 'r'
   },
   lang: 'en',
-  rates: {}
+  rates: {},
+  exclusions: ['www_twitch_tv']
 };
