@@ -9,18 +9,32 @@ export class YouTubeHandler extends BaseHandler {
     // Ignore thumbnail videos and ads
     return (
       video.classList.contains('video-thumbnail') ||
-      video.parentElement?.classList.contains('ytp-ad-player-overlay')
+      video.parentElement?.classList.contains('ytp-ad-player-overlay') ||
+      video.closest('#video-preview') !== null
     ) ?? false;
   }
 
-  public getPosition(_video: HTMLVideoElement): HTMLElement {
-    return _video.parentElement?.parentElement ?? document.body;
+  public getPosition(video: HTMLVideoElement): HTMLElement {
+    if (video.closest('#shorts-player')) {
+      return video.parentElement?.parentElement?.parentElement as HTMLElement ?? video;
+    }
+    return video.parentElement?.parentElement ?? video;
   }
 
-  public getStyles(_video: HTMLVideoElement): Record<string, any> {
+  public async getStyles(video: HTMLVideoElement): Promise<Record<string, any>> {
+    let top: number = 20,
+      left: number = 10;
+    
+    if (video.closest('#shorts-player')) {
+      top = 75;
+    } else if (document.fullscreenElement !== null) {
+      top = 70;
+      left = 15;
+    }
+
     return {
-      left: '10px',
-      top: document.fullscreenElement !== null ? '65px' : '20px'
+      left: `${left}px`,
+      top: `${top}px`
     }
   }
 }

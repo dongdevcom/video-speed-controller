@@ -18,7 +18,7 @@ export class BaseHandler {
     return _video.parentElement ?? document.body;
   }
 
-  public getStyles(_video: HTMLVideoElement): Record<string, any> {
+  public async getStyles(_video: HTMLVideoElement): Promise<Record<string, any>> {
     return {
       left: '10px',
       top: '20px'

@@ -27,7 +27,7 @@ export class FacebookHandler extends BaseHandler {
       ?? document.body;
   }
 
-  public getStyles(video: HTMLVideoElement): Record<string, any> {
+  public async getStyles(video: HTMLVideoElement): Promise<Record<string, any>> {
     const reel = location.pathname.includes('/reel/');
     return {
       left: '10px',

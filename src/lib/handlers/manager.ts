@@ -33,7 +33,7 @@ export class SiteHandlerManager {
     return this.getHandler().getPosition(_video);
   }
 
-  public getStyles(_video: HTMLVideoElement): Record<string, any> {
+  public async getStyles(_video: HTMLVideoElement): Promise<Record<string, any>> {
     return this.getHandler().getStyles(_video);
   }
 }

@@ -28,15 +28,29 @@
       active = true;
       scheduleDeactivate();
     };
+    const changeStyle = async () => {
+      styleState = await style();
+    };
 
-    const resizeObserver = new ResizeObserver(() => {
-      styleState = style();
-    });
+    // Change style on video reszize
+    const resizeObserver = new ResizeObserver(changeStyle);
     resizeObserver.observe(video);
+
+    // Change style on video source change
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+          changeStyle();
+        }
+      }
+    });
+    observer.observe(video, { attributes: true });
+
     video.addEventListener('ratechange', handleRateChange);
 
     return () => {
       resizeObserver.disconnect();
+      observer.disconnect();
       video.removeEventListener('ratechange', handleRateChange);
     };
   });
