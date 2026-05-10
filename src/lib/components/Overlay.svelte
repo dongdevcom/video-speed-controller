@@ -12,7 +12,7 @@
   }
 
   let { video, handler, style }: OverlayProps = $props();
-  
+
   let rate = $state(1.0);
   let active = $state(false);
   let styleState = $state({});
@@ -61,14 +61,14 @@
 </script>
 
 <div class="overlay-wrapper">
-  <div
-    class:active
-    class="overlay"
-    style={styleObjectToString(styleState)}
-  >
+  <div class:active class="overlay" style={styleObjectToString(styleState)}>
     <div class="overlay-text">
-      <SpeedLoopIcon width={16} height={16} color="white" />
-      <span>{rate.toFixed(1)}</span>
+      <div class="overlay-icon">
+        <SpeedLoopIcon width={18} height={18} color="white" />
+      </div>
+      <div class="overlay-rate">
+        <span>{rate.toFixed(1)}</span>
+      </div>
     </div>
     <div class="overlay-controls">
       <button
@@ -135,13 +135,23 @@
   .overlay-text {
     display: flex;
     gap: 2px;
+    align-items: center;
     justify-content: center;
   }
 
-  .overlay-text span {
+  .overlay-icon,
+  .overlay-rate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overlay-rate {
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
     color: white;
+    line-height: 1;
   }
 
   .overlay-controls {

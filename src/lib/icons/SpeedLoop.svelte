@@ -3,7 +3,7 @@
   export let height = 16;
   export let color = 'white';
 </script>
-<svg {width} {height} viewBox="0 0 24 24" fill="none" style="display:inline-block;vertical-align:middle">
+<svg {width} {height} viewBox="0 0 24 24" fill="none">
   <path
     fill="none"
     stroke={color}
