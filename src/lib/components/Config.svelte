@@ -1,6 +1,7 @@
 <script lang="ts">
   import { t, config, locales, locale } from '$lib/stores';
   import { LANGUAGES } from '$lib/constants';
+  import { round } from '$lib/utils';
 
   /** Callback provided by the mount site (menu.ts) to properly unmount this component. */
   let { onclose }: { onclose: () => void } = $props();
@@ -47,7 +48,7 @@
 
     config.update((cfg) => ({
       ...cfg,
-      delta,
+      delta: round(delta),
       key: {
         decrease: decreaseKey.toLowerCase(),
         increase: increaseKey.toLowerCase(),

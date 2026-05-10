@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { SpeedLoopIcon, MinusIcon, PlusIcon, ResetIcon } from '$lib/icons';
   import { Action } from '$lib/types';
-  import { debounce, styleObjectToString } from '$lib/utils';
+  import { debounce, styleObjectToString, formatRate } from '$lib/utils';
   import { t } from '$lib/stores';
 
   export interface OverlayProps {
@@ -55,20 +55,22 @@
     };
   });
 
-  const stop = (e: MouseEvent) => {
+
+
+  const stop = (e: MouseEvent): void => {
     e.stopPropagation();
     e.preventDefault();
   };
 
-  const increase = (e: MouseEvent) => {
+  const increase = (e: MouseEvent): void => {
     stop(e);
     handler(Action.Increase);
   };
-  const decrease = (e: MouseEvent) => {
+  const decrease = (e: MouseEvent): void => {
     stop(e);
     handler(Action.Decrease);
   };
-  const reset = (e: MouseEvent) => {
+  const reset = (e: MouseEvent): void => {
     stop(e);
     handler(Action.Reset);
   };
@@ -81,7 +83,7 @@
         <SpeedLoopIcon width={18} height={18} color="white" />
       </div>
       <div class="overlay-rate">
-        <span>{rate.toFixed(1)}</span>
+        <span>{formatRate(rate)}</span>
       </div>
     </div>
     <div class="overlay-controls">
