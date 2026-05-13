@@ -6,12 +6,8 @@ export class YouTubeHandler extends BaseHandler {
   }
 
   public shouldIgnore(video: HTMLVideoElement): boolean {
-    // Ignore thumbnail videos and ads
-    return (
-      video.classList.contains('video-thumbnail') ||
-      video.parentElement?.classList.contains('ytp-ad-player-overlay') ||
-      video.closest('#video-preview') !== null
-    ) ?? false;
+    // Ignore thumbnail videos
+    return video.closest('#video-preview') !== null;
   }
 
   public getPosition(video: HTMLVideoElement): HTMLElement {
