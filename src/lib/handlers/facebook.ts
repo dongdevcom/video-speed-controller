@@ -8,10 +8,8 @@ export class FacebookHandler extends BaseHandler {
   public shouldIgnore(video: HTMLVideoElement): boolean {
     // Ignore story videos and other non-main content
     return (
-      video.closest('[data-story-id]') !== null ||
-      video.closest('.story-bucket-container') !== null ||
-      video.closest('[aria-label="Reels"]') !== null ||
-      video.getAttribute('data-video-width') === '0'
+      video.closest('a[href^="/stories"]') !== null ||
+      video.closest('[aria-label="Reels"]') !== null
     );
   }
 
