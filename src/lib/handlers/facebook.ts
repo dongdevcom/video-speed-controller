@@ -26,10 +26,18 @@ export class FacebookHandler extends BaseHandler {
   }
 
   public async getStyles(video: HTMLVideoElement): Promise<Record<string, any>> {
-    const reel = location.pathname.includes('/reel/');
+    let top: number = 10,
+      left: number = 10;
+    const pathname = location.pathname;
+
+    if (pathname.includes('/reel/')) {
+      top += 50;
+    } else if (pathname.includes('/stories/')) {
+      top += 65;
+    }
     return {
-      left: '10px',
-      top: reel ? '60px' : '10px'
+      left: `${left}px`,
+      top: `${top}px`
     }
   }
 }
