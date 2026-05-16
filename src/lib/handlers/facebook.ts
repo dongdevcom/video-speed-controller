@@ -1,4 +1,6 @@
 import { BaseHandler } from '$lib/handlers';
+import { MountPosition } from '$lib/types';
+import type { MountConfig } from '$lib/types';
 
 export class FacebookHandler extends BaseHandler {
   public matches(url: URL = new URL(window.location.href)): boolean {
@@ -13,16 +15,19 @@ export class FacebookHandler extends BaseHandler {
     );
   }
 
-  public getPosition(_video: HTMLVideoElement): HTMLElement {
-    return _video.parentElement
-      ?.parentElement
-      ?.parentElement
-      ?.parentElement
-      ?.parentElement
-      ?.parentElement
-      ?.parentElement
-      ?.parentElement
-      ?? document.body;
+  public getPosition(video: HTMLVideoElement): MountConfig {
+    return {
+      element: video.parentElement
+        ?.parentElement
+        ?.parentElement
+        ?.parentElement
+        ?.parentElement
+        ?.parentElement
+        ?.parentElement
+        ?.parentElement
+        ?? document.body,
+      position: MountPosition.FirstChild
+    };
   }
 
   public async getStyles(video: HTMLVideoElement): Promise<Record<string, any>> {

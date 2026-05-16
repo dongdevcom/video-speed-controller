@@ -1,3 +1,6 @@
+import { MountPosition } from '$lib/types';
+import type { MountConfig } from '$lib/types';
+
 /**
  * Default handler used for all sites when no specialized handler matches.
  */
@@ -14,8 +17,11 @@ export class BaseHandler {
     return false;
   }
 
-  public getPosition(_video: HTMLVideoElement): HTMLElement {
-    return _video.parentElement ?? document.body;
+  public getPosition(_video: HTMLVideoElement): MountConfig {
+    return {
+      element: _video.parentElement ?? document.body,
+      position: MountPosition.LastChild
+    };
   }
 
   public async getStyles(_video: HTMLVideoElement): Promise<Record<string, any>> {

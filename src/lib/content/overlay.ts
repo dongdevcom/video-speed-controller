@@ -24,11 +24,13 @@ export class OverlayController {
       if (this.mountedVideos.has(video)) continue;
       this.mountedVideos.add(video);
 
-      const element = this.manager.getPosition(video);
+      const config = this.manager.getPosition(video);
+      const element = config.element;
+      const anchor = element[config.position] ?? undefined;
 
       const destroy = mount(Overlay, {
         target: element,
-        anchor: element.firstChild ?? undefined,
+        anchor: anchor,
         props: {
           video,
           handler,

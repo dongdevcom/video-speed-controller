@@ -1,4 +1,6 @@
 import { BaseHandler } from '$lib/handlers';
+import { MountPosition } from '$lib/types';
+import type { MountConfig } from '$lib/types';
 
 export class YouTubeHandler extends BaseHandler {
   public matches(url: URL = new URL(window.location.href)): boolean {
@@ -10,11 +12,17 @@ export class YouTubeHandler extends BaseHandler {
     return video.closest('#video-preview') !== null;
   }
 
-  public getPosition(video: HTMLVideoElement): HTMLElement {
+  public getPosition(video: HTMLVideoElement): MountConfig {
+    let element: HTMLElement | null = null;
     if (video.closest('#shorts-player')) {
-      return video.parentElement?.parentElement?.parentElement as HTMLElement ?? video;
+      element = video.parentElement?.parentElement?.parentElement as HTMLElement;
+    } else {
+      element = video.parentElement?.parentElement as HTMLElement;
     }
-    return video.parentElement?.parentElement ?? video;
+    return {
+      element: element ?? document.body,
+      position: MountPosition.FirstChild
+    };
   }
 
   public async getStyles(video: HTMLVideoElement): Promise<Record<string, any>> {

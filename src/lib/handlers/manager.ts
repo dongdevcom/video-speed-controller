@@ -2,14 +2,17 @@ import {
   YouTubeHandler,
   FacebookHandler,
   BaseHandler,
-  TikTokHandler
+  TikTokHandler,
+  JellyfinHandler
 } from '$lib/handlers';
+import type { MountConfig } from '$lib/types';
 
 export class SiteHandlerManager {
   private readonly handlers: BaseHandler[] = [
     new FacebookHandler(),
     new YouTubeHandler(),
     new TikTokHandler(),
+    new JellyfinHandler(),
     new BaseHandler(),
   ];
 
@@ -29,7 +32,7 @@ export class SiteHandlerManager {
     return this.getHandler().getVideos(root);
   }
 
-  public getPosition(_video: HTMLVideoElement): HTMLElement {
+  public getPosition(_video: HTMLVideoElement): MountConfig {
     return this.getHandler().getPosition(_video);
   }
 
