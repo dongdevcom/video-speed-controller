@@ -16,12 +16,10 @@ export class FacebookHandler extends BaseHandler {
   }
 
   public getPosition(video: HTMLVideoElement): MountConfig {
-    const pathname = location.pathname;
-    if (pathname.includes('/messages/') || document.querySelector('a[download]')) {
+    // Facebook messenger
+    if (document.querySelector('a[download]')) {
       return {
         element: video.parentElement
-          ?.parentElement
-          ?.parentElement
           ?.parentElement
           ?.parentElement
           ?.parentElement
@@ -53,6 +51,9 @@ export class FacebookHandler extends BaseHandler {
       top += 50;
     } else if (pathname.includes('/stories/')) {
       top += 65;
+    } else if (document.querySelector('a[download]')) { // Facebook messenger
+      left += 30;
+      top += 5;
     }
     return {
       left: `${left}px`,
