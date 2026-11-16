@@ -59,6 +59,7 @@
 
     locale.set(lang);
     alert($t('message.saved'));
+    config.flush();
     window.location.reload();
   };
 </script>

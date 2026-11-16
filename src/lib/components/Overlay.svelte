@@ -9,7 +9,7 @@
   export interface OverlayProps {
     video: HTMLVideoElement;
     handler: (action: Action) => void;
-    style: () => Record<string, any>;
+    style: () => Promise<Record<string, any>>;
   }
 
   let { video, handler, style }: OverlayProps = $props();
@@ -24,13 +24,21 @@
   }, 1000);
 
   onMount(() => {
+    let disposed = false;
+    let styleVersion = 0;
     const handleRateChange = () => {
       rate = video.playbackRate;
       active = true;
       scheduleDeactivate();
     };
     const changeStyle = async () => {
-      styleState = await style();
+      const version = ++styleVersion;
+      try {
+        const nextStyle = await style();
+        if (!disposed && version === styleVersion) styleState = nextStyle;
+      } catch (error) {
+        if (!disposed && version === styleVersion) console.warn('Video overlay style update failed', error);
+      }
     };
 
     // Change style on video reszize
@@ -45,14 +53,21 @@
         }
       }
     });
-    observer.observe(video, { attributes: true });
+    observer.observe(video, { attributes: true, attributeFilter: ['src'] });
 
     video.addEventListener('ratechange', handleRateChange);
+    video.addEventListener('loadedmetadata', changeStyle);
+    // The initial playback rate may have been applied before this listener existed.
+    handleRateChange();
+    changeStyle();
 
     return () => {
+      disposed = true;
+      scheduleDeactivate.cancel();
       resizeObserver.disconnect();
       observer.disconnect();
       video.removeEventListener('ratechange', handleRateChange);
+      video.removeEventListener('loadedmetadata', changeStyle);
     };
   });
 
@@ -77,7 +92,7 @@
   };
 </script>
 
-<div class={styles['overlay-wrapper']}>
+<div class={styles['overlay-wrapper']} data-vsc-overlay>
   <div 
     class="{styles.overlay} {active ? styles.active : ''}" 
     style={styleObjectToString(styleState)}

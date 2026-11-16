@@ -26,5 +26,6 @@ export function gm<T>(key: string, defaultValue: T) {
     set: store.set,
     update: store.update,
     get: () => get(store),
+    flush: save.flush,
   };
 }

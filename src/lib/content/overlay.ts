@@ -4,28 +4,39 @@ import type { SiteHandlerManager } from '$lib/handlers';
 import type { Action } from '$lib/types';
 
 export class OverlayController {
-  /**
-   * Tracks video elements that already have an overlay mounted.
-   * WeakSet gives O(1) lookup and allows GC to collect detached video elements.
-   */
-  private mountedVideos = new WeakSet<HTMLVideoElement>();
-  private overlayMap = new WeakMap<HTMLVideoElement, { destroy: () => void }>();
+  private overlayMap = new Map<HTMLVideoElement, {
+    element: HTMLElement;
+    destroy: () => void;
+  }>();
 
   constructor(
     private readonly manager: SiteHandlerManager
   ) { }
 
-  /** Mounts a speed overlay for each video that does not yet have one. */
+  public destroy(): void {
+    for (const overlay of this.overlayMap.values()) overlay.destroy();
+    this.overlayMap.clear();
+  }
+
+  /** Mounts overlays and remounts them when a video's target container changes. */
   public mountOverlay(
     videos: HTMLVideoElement[],
     handler: (action: Action) => void
   ): void {
+    const current = new Set(videos);
+    for (const [video, overlay] of this.overlayMap) {
+      if (!video.isConnected || !current.has(video)) {
+        overlay.destroy();
+        this.overlayMap.delete(video);
+      }
+    }
     for (const video of videos) {
-      if (this.mountedVideos.has(video)) continue;
-      this.mountedVideos.add(video);
-
       const config = this.manager.getPosition(video);
       const element = config.element;
+      const existing = this.overlayMap.get(video);
+      if (existing?.element === element) continue;
+      existing?.destroy();
+
       const anchor = element[config.position] ?? undefined;
 
       const destroy = mount(Overlay, {
@@ -38,6 +49,7 @@ export class OverlayController {
         }
       });
       this.overlayMap.set(video, {
+        element,
         destroy: () => {
           unmount(destroy);
         }

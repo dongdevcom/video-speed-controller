@@ -35,6 +35,7 @@ export class MenuController {
           config.disable();
           alert(t('message.exclusion_added'));
         }
+        config.flush();
         window.location.reload();
       })
     );
@@ -55,6 +56,7 @@ export class MenuController {
         if (confirm(t('message.reset_confirm'))) {
           config.reset();
           alert(t('message.reset_done'));
+          config.flush();
           window.location.reload();
         }
       })

@@ -5,8 +5,8 @@ import type { SiteHandlerManager } from '$lib/handlers';
 export class PlaybackController {
   constructor(private readonly manager: SiteHandlerManager) { }
 
-  private applyPlaybackRate(rate: number): HTMLVideoElement[] {
-    return this.manager.getVideos().map(el => {
+  private applyPlaybackRate(rate: number, videos = this.manager.getVideos()): HTMLVideoElement[] {
+    return videos.map(el => {
       if (el.playbackRate !== rate) {
         el.playbackRate = rate;
       }
@@ -14,14 +14,10 @@ export class PlaybackController {
     });
   }
 
-  private getCurrentRate(): number {
-    const firstVideo = this.manager.getVideos()[0];
-    return firstVideo?.playbackRate ?? config.getRate();
-  }
-
   public playbackRateHandler(action: Action): void {
     const { delta } = config.get();
-    const currentRate = this.getCurrentRate();
+    const videos = this.manager.getVideos();
+    const currentRate = videos[0]?.playbackRate ?? config.getRate();
     let rate: number;
 
     switch (action) {
@@ -37,7 +33,7 @@ export class PlaybackController {
     }
 
     config.setRate(rate);
-    this.applyPlaybackRate(rate);
+    this.applyPlaybackRate(rate, videos);
   }
 
   public handlePlaying(): HTMLVideoElement[] {
@@ -45,6 +41,7 @@ export class PlaybackController {
   }
 
   public handleKeydown = (e: KeyboardEvent): void => {
+    if (e.ctrlKey || e.altKey || e.metaKey || e.isComposing) return;
     const target = e.target as HTMLElement;
     if (!target) return;
 

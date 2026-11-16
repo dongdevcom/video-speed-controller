@@ -20,9 +20,11 @@ export class TikTokHandler extends BaseHandler {
       ?.firstChild as Element | null)
       ?.querySelector?.('form[data-e2e="search-box"]');
 
-    if (searchBox) {
+    // Metadata events on the overlay trigger a fresh calculation once available.
+    if (searchBox && video.videoWidth > 0 && video.videoHeight > 0) {
       const rect = searchBox.getBoundingClientRect();
-      const { width, height } = await this.getVideoMetadata(video);
+      const width = video.videoWidth;
+      const height = video.videoHeight;
       const isVertical = height > width;
       if (!isVertical) {
         const ratio = width / height;
@@ -45,16 +47,4 @@ export class TikTokHandler extends BaseHandler {
     };
   }
 
-  private async getVideoMetadata(video: HTMLVideoElement): Promise<{ width: number; height: number }> {
-    if (video.videoWidth > 0 && video.videoHeight > 0) {
-      return { width: video.videoWidth, height: video.videoHeight };
-    }
-    return await new Promise((resolve) => {
-      video.addEventListener('loadedmetadata', function () {
-        resolve({ width: this.videoWidth, height: this.videoHeight });
-      }, {
-        once: true
-      });
-    });
-  }
 }

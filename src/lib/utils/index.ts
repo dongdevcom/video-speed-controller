@@ -12,12 +12,25 @@ export const getSiteId = (): string => {
 export const debounce = <T extends unknown[]>(
   func: (...args: T) => void,
   delay: number
-): ((...args: T) => void) => {
-  let timer: ReturnType<typeof setTimeout>;
-  return (...args: T) => {
+): ((...args: T) => void) & { flush: () => void; cancel: () => void } => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let pending: T | undefined;
+  const cancel = () => {
     clearTimeout(timer);
-    timer = setTimeout(() => func(...args), delay);
+    timer = undefined;
+    pending = undefined;
   };
+  const flush = () => {
+    const args = pending;
+    cancel();
+    if (args) func(...args);
+  };
+  const debounced = (...args: T) => {
+    clearTimeout(timer);
+    pending = args;
+    timer = setTimeout(flush, delay);
+  };
+  return Object.assign(debounced, { flush, cancel });
 };
 
 /**

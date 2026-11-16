@@ -47,7 +47,7 @@ export class FacebookHandler extends BaseHandler {
       left: number = 10;
     const pathname = location.pathname;
 
-    if (pathname.includes('/reel/')) {
+    if (pathname.includes('/reel/') && !document.querySelector('div[role="dialog"]')) {
       top += 50;
     } else if (pathname.includes('/stories/')) {
       top += 65;
